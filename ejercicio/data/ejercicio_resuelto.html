@@ -1,26 +1,61 @@
 <!doctype html>
-<html>
+<html lang="es">
     <head>
-        <meta charset="utf-8" />
+        <meta charset="UTF-8" />
         <title>Lista de Instituciones</title>
-        <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     </head>
     <body>
-        <ul id="lista"></ul>
+        <h1>Información de Instituciones</h1>
+        <ul id="lista-instituciones"></ul>
 
         <script>
-            $(document).ready(function () {
-                // Lee el archivo JSON original directamente
-                $.getJSON("data_instituciones.json", function (data) {
-                    // Recorre cada objeto del JSON
-                    $.each(data, function (i, inst) {
-                        // Agrega el nombre a la lista
-                        $("#lista").append(
-                            "<li>" + inst["Nombre-Educativa"] + "</li>",
-                        );
+            const url =
+                "https://raw.githubusercontent.com/taw-desarrollo-plataformas-web/oers/refs/heads/main/data_instituciones.json";
+
+            async function obtenerDatos() {
+                try {
+                    const respuesta = await fetch(url);
+                    const datos = await respuesta.json();
+                    const contenedorPrincipal = document.getElementById(
+                        "lista-instituciones",
+                    );
+
+                    // Convertimos el objeto en un array para iterar sobre todas las instituciones
+                    Object.values(datos).forEach((inst) => {
+                        // 1. Creamos un item de lista para la institución
+                        const liInstitucion = document.createElement("li");
+                        liInstitucion.innerHTML = `<strong>${inst["Nombre-Educativa"]}</strong>`;
+
+                        // 2. Creamos una sub-lista para los 5 datos específicos
+                        const subLista = document.createElement("ul");
+
+                        // Definimos los 5 datos a mostrar
+                        const datosAMostrar = [
+                            `AMIE: ${inst.AMIE}`,
+                            `Provincia: ${inst.Provincia}`,
+                            `Cantón: ${inst.Canton}`,
+                            `Sostenimiento: ${inst.Sostenimiento}`,
+                            `Estado: ${inst.Estado}`,
+                        ];
+
+                        // 3. Agregamos los 5 datos como sub-items
+                        datosAMostrar.forEach((texto) => {
+                            const detalle = document.createElement("li");
+                            detalle.textContent = texto;
+                            subLista.appendChild(detalle);
+                        });
+
+                        // Unimos todo
+                        liInstitucion.appendChild(subLista);
+                        contenedorPrincipal.appendChild(liInstitucion);
                     });
-                });
-            });
+                } catch (error) {
+                    console.error("Error cargando el JSON:", error);
+                }
+            }
+
+            // Llamamos a la función
+            obtenerDatos();
         </script>
     </body>
 </html>
